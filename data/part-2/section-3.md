@@ -4,11 +4,11 @@ title: "Volumes in action"
 hidden: false
 ---
 
-Next we're going to set up [Redmine](https://www.redmine.org/), a PostgreSQL database and [Adminer](https://www.adminer.org/). All of them have official docker images available as we can see from [Redmine](https://hub.docker.com/_/redmine), [Postgres](https://hub.docker.com/_/postgres) and [Adminer](https://hub.docker.com/_/adminer) respectively. The officiality of the containers is not that important, just that we can expect that it will have some support. We could also, for example, setup Wordpress or a MediaWiki inside containers in the same manner if you're interested in running existing applications inside docker. You could even set up your own personal [Sentry](https://hub.docker.com/_/sentry/).
+Next we're going to set up [Redmine](https://www.redmine.org/), a PostgreSQL database and [Adminer](https://www.adminer.org/). All of them have official podman images available as we can see from [Redmine](https://hub.podman.com/_/redmine), [Postgres](https://hub.podman.com/_/postgres) and [Adminer](https://hub.podman.com/_/adminer) respectively. The officiality of the containers is not that important, just that we can expect that it will have some support. We could also, for example, setup Wordpress or a MediaWiki inside containers in the same manner if you're interested in running existing applications inside podman. You could even set up your own personal [Sentry](https://hub.podman.com/_/sentry/).
 
-In <https://hub.docker.com/_/redmine> there is a list of different variants in `Supported tags and respective Dockerfile links` - most likely for this testing we can use any of the images. From "Environment Variables" we can see that all variants can use `REDMINE_DB_POSTGRES` or `REDMINE_DB_MYSQL` environment variables to set up the database, or it will fallback to SQLite. So before moving forward, let's setup postgres.
+In <https://hub.podman.com/_/redmine> there is a list of different variants in `Supported tags and respective Podmanfile links` - most likely for this testing we can use any of the images. From "Environment Variables" we can see that all variants can use `REDMINE_DB_POSTGRES` or `REDMINE_DB_MYSQL` environment variables to set up the database, or it will fallback to SQLite. So before moving forward, let's setup postgres.
 
-In <https://hub.docker.com/_/postgres> there's a sample compose file under "via docker stack deploy or docker-compose" - Let's strip that down to
+In <https://hub.podman.com/_/postgres> there's a sample compose file under "via podman stack deploy or podman-compose" - Let's strip that down to
 
 ```yaml
 version: "3.8"
@@ -26,10 +26,10 @@ Note:
 
 - `restart: always` was changed to `unless-stopped` that will keep the container running unless it's stopped. With `always` the stopped container is started after reboot for example.
 
-Under "Caveats - Where to Store Data" we can see that the `/var/lib/postgresql/data` can be mounted separately to preserve data in an easy-to-locate directory or let Docker manage the storage. We could use a bind mount like previously, but let's first see what the "let Docker manage the storage" means. Let's run the docker-compose file without setting anything new:
+Under "Caveats - Where to Store Data" we can see that the `/var/lib/postgresql/data` can be mounted separately to preserve data in an easy-to-locate directory or let Podman manage the storage. We could use a bind mount like previously, but let's first see what the "let Podman manage the storage" means. Let's run the podman-compose file without setting anything new:
 
 ```console
-$ docker-compose up
+$ podman-compose up
 
   Creating network "redmine_default" with the default driver
   Creating db_redmine ... done
@@ -45,26 +45,26 @@ $ docker-compose up
 
 The image initializes the data files in the first start. Let's terminate the container with ^C. Compose uses the current directory as a prefix for container and volume names so that different projects don't clash. The prefix can be overridden with `COMPOSE_PROJECT_NAME` environment variable if needed.
 
-Let's **inspect** if there was a volume created with `docker container inspect db_redmine | grep -A 5 Mounts`
+Let's **inspect** if there was a volume created with `podman container inspect db_redmine | grep -A 5 Mounts`
 
 ```json
 "Mounts": [
     {
         "Type": "volume",
         "Name": "794c9d8db6b5e643865c8364bf3b807b4165291f02508404ff3309b8ffde01df",
-        "Source": "/var/lib/docker/volumes/794c9d8db6b5e643865c8364bf3b807b4165291f02508404ff3309b8ffde01df/_data",
+        "Source": "/var/lib/podman/volumes/794c9d8db6b5e643865c8364bf3b807b4165291f02508404ff3309b8ffde01df/_data",
         "Destination": "/var/lib/postgresql/data",
 ```
 
-Now if we check out `docker volume ls` we can see that a volume with name "794c9d8db6b5e643865c8364bf3b807b4165291f02508404ff3309b8ffde01df" exists.
+Now if we check out `podman volume ls` we can see that a volume with name "794c9d8db6b5e643865c8364bf3b807b4165291f02508404ff3309b8ffde01df" exists.
 
 ```console
-$ docker volume ls
+$ podman volume ls
   DRIVER              VOLUME NAME
   local               794c9d8db6b5e643865c8364bf3b807b4165291f02508404ff3309b8ffde01df
 ```
 
-There may be more volumes on your machine. If you want to get rid of them you can use `docker volume prune`. Let's put the whole "application" down now with `docker-compose down`. Then, this time let's create a separate volume for the data.
+There may be more volumes on your machine. If you want to get rid of them you can use `podman volume prune`. Let's put the whole "application" down now with `podman-compose down`. Then, this time let's create a separate volume for the data.
 
 ```yaml
 version: "3.8"
@@ -84,20 +84,20 @@ volumes:
 ```
 
 ```console
-$ docker volume ls
+$ podman volume ls
   DRIVER              VOLUME NAME
   local               redmine_database
 
-$ docker container inspect db_redmine | grep -A 5 Mounts
+$ podman container inspect db_redmine | grep -A 5 Mounts
 "Mounts": [
     {
         "Type": "volume",
         "Name": "redmine_database",
-        "Source": "/var/lib/docker/volumes/ongoing_redminedata/_data",
+        "Source": "/var/lib/podman/volumes/ongoing_redminedata/_data",
         "Destination": "/var/lib/postgresql/data",
 ```
 
-Ok, looks a bit more human readable even if it isn't more accessible than bind mounts. Now when the Postgres is running, let's add the [redmine](https://hub.docker.com/_/redmine). The container seems to require just two environment variables.
+Ok, looks a bit more human readable even if it isn't more accessible than bind mounts. Now when the Postgres is running, let's add the [redmine](https://hub.podman.com/_/redmine). The container seems to require just two environment variables.
 
 ```yaml
 redmine:
@@ -111,9 +111,9 @@ redmine:
     - db
 ```
 
-Notice the `depends_on` declaration. This makes sure that the that `db` service should be started first. `depends_on` does not guarantee that the database is up, just that the service is started first. The Postgres server is accessible with dns name "db" from the redmine service as discussed in the "docker networking" section
+Notice the `depends_on` declaration. This makes sure that the that `db` service should be started first. `depends_on` does not guarantee that the database is up, just that the service is started first. The Postgres server is accessible with dns name "db" from the redmine service as discussed in the "podman networking" section
 
-Now when you run `docker-compose up` you will see a bunch of database migrations running first.
+Now when you run `podman-compose up` you will see a bunch of database migrations running first.
 
 ```console
   redmine_1  | I, [2019-03-03T10:59:20.956936 #25]  INFO -- : Migrating to Setup (1)
@@ -123,7 +123,7 @@ Now when you run `docker-compose up` you will see a bunch of database migrations
   redmine_1  | [2019-03-03 11:01:10] INFO  WEBrick::HTTPServer#start: pid=1 port=3000
 ```
 
-We can see that image also creates files to `/usr/src/redmine/files` that also need to be persisted. The Dockerfile has this [line](https://github.com/docker-library/redmine/blob/cea16044e97567c28802fc8cc06f6cd036c49a5c/4.0/Dockerfile#L155) where it declares that a volume should be created. Again docker will create the volume, but it will be handled as an anonymous volume that is not managed by compose, so it's better to be explicit about the volume. With that in mind our final file should look like this:
+We can see that image also creates files to `/usr/src/redmine/files` that also need to be persisted. The Podmanfile has this [line](https://github.com/podman-library/redmine/blob/cea16044e97567c28802fc8cc06f6cd036c49a5c/4.0/Podmanfile#L155) where it declares that a volume should be created. Again podman will create the volume, but it will be handled as an anonymous volume that is not managed by compose, so it's better to be explicit about the volume. With that in mind our final file should look like this:
 
 ```yaml
 version: "3.8"
@@ -157,7 +157,7 @@ volumes:
 Now we can use the application with our browser through <http://localhost:9999>. After some changes inside the application we can inspect the changes that happened in the image and check that no extra meaningful files got written to the container:
 
 ```console
-$ docker container diff $(docker-compose ps -q redmine)
+$ podman container diff $(podman-compose ps -q redmine)
   C /usr/src/redmine/config/environment.rb
   ...
   C /usr/src/redmine/tmp/pdf
@@ -165,9 +165,9 @@ $ docker container diff $(docker-compose ps -q redmine)
 
 Probably not.
 
-Next, we will add adminer to the application. We could also just use psql to interact with a postgres database with `docker container exec -it db_redmine psql -U postgres`. (The command **exec**utes psql -U postgres inside the container) The same method can be used to create backups with pg_dump: `docker container exec db_redmine pg_dump -U postgres > redmine.dump`.
+Next, we will add adminer to the application. We could also just use psql to interact with a postgres database with `podman container exec -it db_redmine psql -U postgres`. (The command **exec**utes psql -U postgres inside the container) The same method can be used to create backups with pg_dump: `podman container exec db_redmine pg_dump -U postgres > redmine.dump`.
 
-This step is straightforward, we actually had the instructions open back before we set up postgres. But let's check the [documentation](https://hub.docker.com/_/adminer) and we see that the following will suffice:
+This step is straightforward, we actually had the instructions open back before we set up postgres. But let's check the [documentation](https://hub.podman.com/_/adminer) and we see that the following will suffice:
 
 ```yaml
 adminer:
@@ -179,7 +179,7 @@ adminer:
     - 8083:8080
 ```
 
-Now when we run the application we can access adminer from <http://localhost:8083>. Setting up adminer is straightforward since it will be able to access the database through docker network.
+Now when we run the application we can access adminer from <http://localhost:8083>. Setting up adminer is straightforward since it will be able to access the database through podman network.
 
 <exercise name="Exercise 2.6">
 
@@ -187,17 +187,17 @@ Add database to example backend.
 
 Lets use a postgres database to save messages. We won't need to configure a volume since the official postgres image
 sets a default volume for us. Lets use the postgres image documentation to our advantage when configuring:
-[https://hub.docker.com/\_/postgres/](https://hub.docker.com/_/postgres/). Especially part Environment Variables is of
+[https://hub.podman.com/\_/postgres/](https://hub.podman.com/_/postgres/). Especially part Environment Variables is of
 interest.
 
-The backend [README](https://github.com/docker-hy/material-applications/tree/main/example-backend) should have all the information needed to
+The backend [README](https://github.com/podman-hy/material-applications/tree/main/example-backend) should have all the information needed to
 connect.
 
 The button won't turn green but you can send messages to yourself.
 
-Submit the docker-compose.yml
+Submit the podman-compose.yml
 
-*  TIP: When configuring the database, you might need to destroy the automatically created volumes. Use command `docker volume prune`, `docker volume ls` and `docker volume rm` to remove unused volumes when testing. Make sure to remove containers that depend on them beforehand.
+*  TIP: When configuring the database, you might need to destroy the automatically created volumes. Use command `podman volume prune`, `podman volume ls` and `podman volume rm` to remove unused volumes when testing. Make sure to remove containers that depend on them beforehand.
 
 * `restart: unless-stopped` can help if the postgres takes a while to get ready
 
@@ -210,22 +210,22 @@ Submit the docker-compose.yml
 Configure a [machine learning](https://en.wikipedia.org/wiki/Machine_learning) project.
 
 Look into machine learning project created with Python and React and split into three parts:
-[frontend](https://github.com/docker-hy/ml-kurkkumopo-frontend),
-[backend](https://github.com/docker-hy/ml-kurkkumopo-backend) and
-[training](https://github.com/docker-hy/ml-kurkkumopo-training)
+[frontend](https://github.com/podman-hy/ml-kurkkumopo-frontend),
+[backend](https://github.com/podman-hy/ml-kurkkumopo-backend) and
+[training](https://github.com/podman-hy/ml-kurkkumopo-training)
 
 Note that the training requires 2 volumes and backend should share volume `/src/model` with training.
 
 The frontend will display on http://localhost:3000 and the application will tell if the subject of an image looks more
 like a cucumber or a moped.
 
-Submit the docker-compose.yml
+Submit the podman-compose.yml
 
 * This exercise is known to have broken for some attendees based on CPU. The error looks something like "Illegal instruction (core dumped)". Try downgrading / upgrading the tensorflow found in requirements.txt or join the Discord channel and message with Jakousa#1337.
 
 * Note that the generated model is a toy and will not produce good results.
 
-* It will take SEVERAL minutes to build the docker images, download training pictures and train the classifying model.
+* It will take SEVERAL minutes to build the podman images, download training pictures and train the classifying model.
 
 This exercise was created by [Sasu Mäkinen](https://github.com/sasumaki)
 
@@ -233,7 +233,7 @@ This exercise was created by [Sasu Mäkinen](https://github.com/sasumaki)
 
 <exercise name="Exercise 2.8">
 
-Add [nginx](https://hub.docker.com/_/nginx) to example frontend + backend.
+Add [nginx](https://hub.podman.com/_/nginx) to example frontend + backend.
 
 <img src="../img/exercises/back-front-redis-database-and-nginx.png" />
 
@@ -273,7 +273,7 @@ http {
 
 Nginx, backend and frontend should be connected in the same network. See the image above for how the services are connected.
 
-Submit the docker-compose.yml
+Submit the podman-compose.yml
 
 
 <text-box name="Tips for making sure the backend connection works" variant="hint">
@@ -295,19 +295,19 @@ well.
 After you have configured the volume:
 
 - Save a few messages through the frontend
-- Run `docker-compose down`
-- Run `docker-compose up` and see that the messages are available after refreshing browser
-- Run `docker-compose down` and delete the volume folder manually
-- Run `docker-compose up` and the data should be gone
+- Run `podman-compose down`
+- Run `podman-compose up` and see that the messages are available after refreshing browser
+- Run `podman-compose down` and delete the volume folder manually
+- Run `podman-compose up` and the data should be gone
 
 Maybe it would be simpler to back them up now that you know where they are.
 
 > TIP: To save you the trouble of testing all of those steps, just look into the folder before trying the steps. If
-> it's empty after docker-compose up then something is wrong.
+> it's empty after podman-compose up then something is wrong.
 
-> TIP: Since you may have broken the buttons in nginx exercise you should test with a version of docker-compose.yml that doesn't break the buttons
+> TIP: Since you may have broken the buttons in nginx exercise you should test with a version of podman-compose.yml that doesn't break the buttons
 
-Submit the docker-compose.yml
+Submit the podman-compose.yml
 
 </exercise>
 
@@ -321,6 +321,6 @@ the first button behave differently but you want them to match.
 
 If you had to do any changes explain what you had to change.
 
-Submit the docker-compose yml and both dockerfiles.
+Submit the podman-compose yml and both podmanfiles.
 
 </exercise>

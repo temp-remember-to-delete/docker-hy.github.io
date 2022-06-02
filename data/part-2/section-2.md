@@ -1,20 +1,20 @@
 ---
-path: "/part-2/2-docker-networking"
-title: "Docker networking"
+path: "/part-2/2-podman-networking"
+title: "Podman networking"
 hidden: false
 ---
 
-Connecting two services such as a server and its database in docker can be achieved with docker-compose networks. In addition to starting services listed in docker-compose.yml the tool automatically creates and joins both containers into a network with a DNS. Each container service is named after their container name and as such containers can reference each other simply with their names.
+Connecting two services such as a server and its database in podman can be achieved with podman-compose networks. In addition to starting services listed in podman-compose.yml the tool automatically creates and joins both containers into a network with a DNS. Each container service is named after their container name and as such containers can reference each other simply with their names.
 
-<img src="../img/2/docker-networks.png">
+<img src="../img/2/podman-networks.png">
 
-Here are two services in a single network: webapp and webapp-helper. The webapp-helper has a server, listening for requests in port 3000, that webapp wants to access. Because they were defined in the same docker-compose.yml file the access is trivial. Docker-compose has already taken care of creating a network and webapp can simply send a request to webapp-helper:3000, the internal DNS will translate that to the correct access and ports do not have to be published outside of the network.
+Here are two services in a single network: webapp and webapp-helper. The webapp-helper has a server, listening for requests in port 3000, that webapp wants to access. Because they were defined in the same podman-compose.yml file the access is trivial. Podman-compose has already taken care of creating a network and webapp can simply send a request to webapp-helper:3000, the internal DNS will translate that to the correct access and ports do not have to be published outside of the network.
 
 <text-box name="Security reminder: Plan your infrastructure and keep to your plan" variant="hint">
 
 In the next exercise, and in some later exercises, I will supply you with an illustration of the infrastructure. Do look at it and use it to write the configuration.
 
-For example, in 2.4 we don't want to open ports to Redis to the outside world. Do not add a `ports` configuration under redis. The backend will be able to access the application within the docker network.
+For example, in 2.4 we don't want to open ports to Redis to the outside world. Do not add a `ports` configuration under redis. The backend will be able to access the application within the podman network.
 
 </text-box>
 
@@ -26,24 +26,24 @@ Redis is used to speed up some operations. Backend uses a slow api to get inform
 requesting `/ping?redis=true` with curl. The frontend program has a button to test this.
 
 Configure a redis container to cache information for the backend. Use the documentation if needed when configuring:
-[https://hub.docker.com/\_/redis/](https://hub.docker.com/_/redis/)
+[https://hub.podman.com/\_/redis/](https://hub.podman.com/_/redis/)
 
-The backend [README](https://github.com/docker-hy/material-applications/tree/main/example-backend) should have all the information needed to
+The backend [README](https://github.com/podman-hy/material-applications/tree/main/example-backend) should have all the information needed to
 connect.
 
 When you've correctly configured the button will turn green.
 
-Submit the docker-compose.yml
+Submit the podman-compose.yml
 
   <img src="../img/exercises/back-front-and-redis.png" />
 
-The [restart: unless-stopped](https://docs.docker.com/compose/compose-file/compose-file-v3/#restart) configuration can help if the redis takes a while to get ready.
+The [restart: unless-stopped](https://docs.podman.com/compose/compose-file/compose-file-v3/#restart) configuration can help if the redis takes a while to get ready.
 
 </exercise>
 
-You can also manually define the network and its name. A major benefit of defining network is that it makes it easy to setup a configuration where other containers connect to an existing network as an external network. This is used when a container wishes to interact with a container defined in another docker-compose file.
+You can also manually define the network and its name. A major benefit of defining network is that it makes it easy to setup a configuration where other containers connect to an existing network as an external network. This is used when a container wishes to interact with a container defined in another podman-compose file.
 
-Defining network in docker-compose.yml. Services can be added to networks by adding `networks` into the definition of the service:
+Defining network in podman-compose.yml. Services can be added to networks by adding `networks` into the definition of the service:
 
 ```yaml
 version: "3.8"
@@ -52,16 +52,16 @@ services:
   db:
     image: postgres:13.2-alpine
     networks:
-      - database-network # Name in this docker-compose file
+      - database-network # Name in this podman-compose file
 
 networks:
-  database-network: # Name in this docker-compose file
+  database-network: # Name in this podman-compose file
     name: database-network # Name that will be the actual name of the network
 ```
 
-This defines a network called `database-network` which is created with `docker-compose up` and removed with `docker-compose down`.
+This defines a network called `database-network` which is created with `podman-compose up` and removed with `podman-compose down`.
 
-To connect to an external network (possibly defined another docker-compose.yml):
+To connect to an external network (possibly defined another podman-compose.yml):
 
 ```yaml
 version: "3.8"
@@ -98,7 +98,7 @@ networks:
 Compose can also scale the service to run multiple instances:
 
 ```console
-$ docker-compose up --scale whoami=3
+$ podman-compose up --scale whoami=3
 
   WARNING: The "whoami" service specifies a port on the host. If multiple containers for this service are created on a single host, the port will clash.
 
@@ -109,9 +109,9 @@ $ docker-compose up --scale whoami=3
 
 The command fails due to a port clash, as each instance will attempt to bind to the same host port (8000).
 
-We can get around this by only specifying the container port. As mentioned in [part 1](/part1/#allowing-external-connections-into-containers), when leaving the host port unspecified, Docker will automatically choose a free port.
+We can get around this by only specifying the container port. As mentioned in [part 1](/part1/#allowing-external-connections-into-containers), when leaving the host port unspecified, Podman will automatically choose a free port.
 
-Update the ports definition in `docker-compose.yml`:
+Update the ports definition in `podman-compose.yml`:
 
 ```yaml
 ports:
@@ -121,22 +121,22 @@ ports:
 Then run the command again:
 
 ```console
-$ docker-compose up --scale whoami=3
+$ podman-compose up --scale whoami=3
   Starting whoami_whoami_1 ... done
   Creating whoami_whoami_2 ... done
   Creating whoami_whoami_3 ... done
 ```
 
-All three instances are now running and listening on random host ports. We can use `docker-compose port` to find out which ports the instances are bound to.
+All three instances are now running and listening on random host ports. We can use `podman-compose port` to find out which ports the instances are bound to.
 
 ```console
-$ docker-compose port --index 1 whoami 8000
+$ podman-compose port --index 1 whoami 8000
   0.0.0.0:32770
 
-$ docker-compose port --index 2 whoami 8000
+$ podman-compose port --index 2 whoami 8000
   0.0.0.0:32769
 
-$ docker-compose port --index 3 whoami 8000
+$ podman-compose port --index 3 whoami 8000
   0.0.0.0:32768
 ```
 
@@ -150,9 +150,9 @@ $ curl 0.0.0.0:32768
   I'm 1ae20cd990f7
 ```
 
-In a server environment you'd often have a load balancer in-front of the service. For local environment (or a single server) one good solution is to use <https://github.com/jwilder/nginx-proxy> that configures nginx from docker daemon as containers are started and stopped.
+In a server environment you'd often have a load balancer in-front of the service. For local environment (or a single server) one good solution is to use <https://github.com/jwilder/nginx-proxy> that configures nginx from podman daemon as containers are started and stopped.
 
-Let's add the proxy to our compose file and remove the port bindings from the whoami service. We'll mount our `docker.sock` inside of the container in `:ro` read-only mode.
+Let's add the proxy to our compose file and remove the port bindings from the whoami service. We'll mount our `podman.sock` inside of the container in `:ro` read-only mode.
 
 ```yaml
 version: "3.8"
@@ -163,7 +163,7 @@ services:
   proxy:
     image: jwilder/nginx-proxy
     volumes:
-      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - /var/run/podman.sock:/tmp/podman.sock:ro
     ports:
       - 80:80
 ```
@@ -171,7 +171,7 @@ services:
 When we start this and test
 
 ```console
-$ docker-compose up -d --scale whoami=3
+$ podman-compose up -d --scale whoami=3
 $ curl localhost:80
   <html>
   <head><title>503 Service Temporarily Unavailable</title></head>
@@ -182,11 +182,11 @@ $ curl localhost:80
   </html>
 ```
 
-It's "working", but the nginx just doesn't know which service we want. The `nginx-proxy` works with two environment variables: `VIRTUAL_HOST` and `VIRTUAL_PORT`. `VIRTUAL_PORT` is not needed if the service has `EXPOSE` in it's docker image. We can see that `jwilder/whoami` sets it: <https://github.com/jwilder/whoami/blob/master/Dockerfile#L9>
+It's "working", but the nginx just doesn't know which service we want. The `nginx-proxy` works with two environment variables: `VIRTUAL_HOST` and `VIRTUAL_PORT`. `VIRTUAL_PORT` is not needed if the service has `EXPOSE` in it's podman image. We can see that `jwilder/whoami` sets it: <https://github.com/jwilder/whoami/blob/master/Podmanfile#L9>
 
 Note:
 
-- For Mac users with the M1 chip you may see the following error message: `runtime: failed to create new OS thread`. In this case you can use the docker image `ninanung/nginx-proxy` instead which offers a temporary fix until `jwilder/nginx-proxy` is updated to support M1 Macs.
+- For Mac users with the M1 chip you may see the following error message: `runtime: failed to create new OS thread`. In this case you can use the podman image `ninanung/nginx-proxy` instead which offers a temporary fix until `jwilder/nginx-proxy` is updated to support M1 Macs.
 
 The domain `colasloth.com` is configured so that all subdomains point to `127.0.0.1`. More information about how this works can be found at [colasloth.github.io](https://colasloth.github.io), but in brief it's a simple DNS "hack". Several other domains serving the same purpose exist, such as `localtest.me`, `lvh.me`, and `vcap.me`, to name a few. In any case, let's use `colasloth.com` here:
 
@@ -201,7 +201,7 @@ services:
   proxy:
     image: jwilder/nginx-proxy
     volumes:
-      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - /var/run/podman.sock:/tmp/podman.sock:ro
     ports:
       - 80:80
 ```
@@ -209,7 +209,7 @@ services:
 Now the proxy works:
 
 ```console
-$ docker-compose up -d --scale whoami=3
+$ podman-compose up -d --scale whoami=3
 $ curl whoami.colasloth.com
   I'm f6f85f4848a8
 $ curl whoami.colasloth.com
@@ -223,7 +223,7 @@ $ echo "hello" > hello.html
 $ echo "world" > world.html
 ```
 
-Then add these services to the `docker-compose.yml` file where you mount just the content as `index.html` in the default nginx path:
+Then add these services to the `podman-compose.yml` file where you mount just the content as `index.html` in the default nginx path:
 
 ```yaml
 hello:
@@ -243,7 +243,7 @@ world:
 Now let's test:
 
 ```console
-$ docker-compose up -d --scale whoami=3
+$ podman-compose up -d --scale whoami=3
 $ curl hello.colasloth.com
   hello
 
@@ -263,7 +263,7 @@ Test updating the `hello.html` without restarting the container, does it work?
 
 <exercise name="Exercise 2.5">
 
-A project over at [https://github.com/docker-hy/material-applications/tree/main/scaling-exercise](https://github.com/docker-hy/material-applications/tree/main/scaling-exercise) has a hardly working application. Go ahead and clone it for yourself. The project already includes docker-compose.yml so you can start it by running `docker-compose up`.
+A project over at [https://github.com/podman-hy/material-applications/tree/main/scaling-exercise](https://github.com/podman-hy/material-applications/tree/main/scaling-exercise) has a hardly working application. Go ahead and clone it for yourself. The project already includes podman-compose.yml so you can start it by running `podman-compose up`.
 
 Application should be accessible through [http://localhost:3000](http://localhost:3000). However it doesn't work well enough and I've added a load balancer for scaling. Your task is to scale the `compute` containers so that the button in the application turns green.
 

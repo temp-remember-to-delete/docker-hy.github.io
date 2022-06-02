@@ -4,7 +4,7 @@ title: "Frequently asked questions"
 hidden: false
 information_page: true
 sidebar_priority: 3000
-separator_after: "DevOps with Docker"
+separator_after: "DevOps with Podman"
 ---
 
 <table-of-contents></table-of-contents>

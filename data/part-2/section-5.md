@@ -4,7 +4,7 @@ title: 'Summary'
 hidden: false
 ---
 
-Again we started from the ground up by learning how to translate non-compose setup into docker-compose.yml and ran with it. Compose gave us also a few handy completely new features that we didn't even know we needed, networks.
+Again we started from the ground up by learning how to translate non-compose setup into podman-compose.yml and ran with it. Compose gave us also a few handy completely new features that we didn't even know we needed, networks.
 
 Now we've learned how to setup up vastly more complex applications with up to 5 different programs running at the same time and they only expose the used ports to the outside world (or even to our machine).
 
@@ -16,7 +16,7 @@ Are we ready for production yet? Short answer: no. Long answer: depends on the s
 
 Enrolling after each part is required for the ECTS credits. Now that you have completed part 2 use the following link to enroll in this course:
 
-- DevOps with Docker: docker-compose, https://www.avoin.helsinki.fi/palvelut/esittely.aspx?s=otm-29ab3dee-9b30-4fbf-b7e7-dcbecd7218c5
+- DevOps with Podman: podman-compose, https://www.avoin.helsinki.fi/palvelut/esittely.aspx?s=otm-29ab3dee-9b30-4fbf-b7e7-dcbecd7218c5
 
 If you wish to end in this part and not do the following parts, follow the instructions [at the bottom of getting started page](/getting-started)
 

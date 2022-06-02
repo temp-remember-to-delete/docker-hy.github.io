@@ -26,24 +26,24 @@ Completing part 1 gives you 1 credit. Completing parts 1 and 2 is worth 2 credit
 Part 1
 
 Can explain what images and containers are and how they're related.
-Can build images with Docker for existing projects and run them.
+Can build images with Podman for existing projects and run them.
 
 Part 2
 
-Can manage complex multi-container applications with docker-compose.
+Can manage complex multi-container applications with podman-compose.
 
 Part 3
 
 Can optimize images sizes and security for production.
-Knows why docker-compose is not an optimal production solution and what is.
+Knows why podman-compose is not an optimal production solution and what is.
 
 ### Course has multiple pages
 
-The DevOps with Docker course is split into 3 parts:
+The DevOps with Podman course is split into 3 parts:
 
-- DevOps with Docker ([TKT21036](https://studies.helsinki.fi/opintotarjonta/cur/otm-43341e49-dfae-4899-95d6-a4da1c5ec47b))
-- DevOps with Docker: docker-compose ([TKT21037](https://studies.helsinki.fi/opintotarjonta/cur/otm-29ab3dee-9b30-4fbf-b7e7-dcbecd7218c5))
-- DevOps with Docker: security and optimization ([TKT21038](https://studies.helsinki.fi/opintotarjonta/cur/otm-3c890ee9-7598-4b5c-9922-2c26c0c3235b))
+- DevOps with Podman ([TKT21036](https://studies.helsinki.fi/opintotarjonta/cur/otm-43341e49-dfae-4899-95d6-a4da1c5ec47b))
+- DevOps with Podman: podman-compose ([TKT21037](https://studies.helsinki.fi/opintotarjonta/cur/otm-29ab3dee-9b30-4fbf-b7e7-dcbecd7218c5))
+- DevOps with Podman: security and optimization ([TKT21038](https://studies.helsinki.fi/opintotarjonta/cur/otm-3c890ee9-7598-4b5c-9922-2c26c0c3235b))
 
 You can click the links to visit each of the subcourse pages. However, all the details should be found on this page. If something is missing or unclear after reading this page, please contact jami.kousa@helsinki.fi or get in touch through Discord.
 
@@ -51,11 +51,11 @@ You can click the links to visit each of the subcourse pages. However, all the d
 
 This course has a Discord group where we discuss everything about the course. Support is available almost 24/7, with the discussion being in both English and Finnish.
 
-Join our discord group [here](https://study.cs.helsinki.fi/discord/join/docker).
+Join our discord group [here](https://study.cs.helsinki.fi/discord/join/podman).
 
 **All** inappropriate, degrading or discriminating comments on the channel are prohibited and will lead to action taken against the commenter.
 
-# Warning: Before installing Docker
+# Warning: Before installing Podman
 
 Containers leverage the power of your own operating system. As such **by default** any containerized application, or user who has external access to your container, would have super user privileges to your computer.
 
@@ -63,31 +63,31 @@ I will try my best to alert you of potential risks as we encounter them, but due
 
 Please keep this in mind as you move through the installation and exercises. If you ever feel unsure about what you're doing, come to the channel and have a chat with us.
 
-## Installing Docker
+## Installing Podman
 
-Use the official documentation to find download instructions for docker-ce for the platform of your choice:
+Use the official documentation to find download instructions for podman-ce for the platform of your choice:
 
-[Ubuntu](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
+[Linux](https://podman.io/getting-started/installation#installing-on-linux)
 
-[MacOS](https://docs.docker.com/docker-for-mac/install/)
+[MacOS](https://podman.io/getting-started/installation#macos)
 
-[Windows](https://docs.docker.com/docker-for-windows/install/)
+[Windows](https://podman.io/getting-started/installation#windows)
 
-Confirm that Docker installed correctly by opening a terminal and running `docker -v` to see the installed version.
+Confirm that Podman installed correctly by opening a terminal and running `podman -v` to see the installed version.
 
-## Installing docker-compose
+## Installing podman-compose
 
-During the writing of these materials, both macOS and Windows have docker-compose included in their respective Docker packages.
+During the writing of these materials, both macOS and Windows have podman-compose included in their respective Podman packages.
 
-Use the official documentation to find download instructions for docker-compose for the platform of your choice:
+Use the official documentation to find download instructions for podman-compose for the platform of your choice:
 
-[Install instructions](https://docs.docker.com/compose/install/)
+[Install instructions](https://docs.podman.com/compose/install/)
 
-Confirm that docker-compose installed correctly by opening a terminal and running `docker-compose -v` to see the installed docker-compose version.
+Confirm that podman-compose installed correctly by opening a terminal and running `podman-compose -v` to see the installed podman-compose version.
 
-<text-box name="Docker Group" variant="hint">
+<text-box name="Podman Group" variant="hint">
 
-To avoid writing sudos you may consider [adding yourself to docker group](https://docs.docker.com/install/linux/linux-postinstall/)
+To avoid writing sudos you may consider [adding yourself to podman group](https://docs.podman.com/install/linux/linux-postinstall/)
 
 Keep in mind that if you do so, you can now run containers without sudo and containers give you super user access to the computer.
 
@@ -110,9 +110,9 @@ Visit the Discord channel if you are stuck!
 Make a repository to GitHub and publish your solutions in clearly ordered files / folders.
 If you need help publishing using Git you should refer to their [guide](https://guides.github.com/activities/hello-world/). Make sure that the repository is available to me, either by using a public repository or a private repository and adding Jakousa as a collaborator.
 
-Most of the exercises will be focused on a Dockerfile and/or docker-compose.yml. In those cases, submitting the file is enough. In other cases, a picture or copy-paste from your command line or a link to Docker Hub and/or project inside the repository is enough. For the command line exercises at start the command `script` ([https://linux.die.net/man/1/script](https://linux.die.net/man/1/script)) may be helpful.
+Most of the exercises will be focused on a Podmanfile and/or podman-compose.yml. In those cases, submitting the file is enough. In other cases, a picture or copy-paste from your command line or a link to Podman Hub and/or project inside the repository is enough. For the command line exercises at start the command `script` ([https://linux.die.net/man/1/script](https://linux.die.net/man/1/script)) may be helpful.
 
-When you have completed a part, use the [submission application](https://studies.cs.helsinki.fi/stats/courses/docker2022) to mark your exercises. You can **not** edit a submission, so make sure you have completed enough exercises for a part before submitting.
+When you have completed a part, use the [submission application](https://studies.cs.helsinki.fi/stats/courses/podman2022) to mark your exercises. You can **not** edit a submission, so make sure you have completed enough exercises for a part before submitting.
 
 ## Completing
 

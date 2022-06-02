@@ -4,10 +4,10 @@ title: "Interacting with the container via volumes and ports"
 hidden: false
 ---
 
-We can use volumes to make it easier to store the downloads outside the containers ephemeral storage. With **bind mount** we can mount a file or directory from our own machine into the container. Let's start another container with `-v` option, that requires an absolute path. We mount our current folder as `/mydir` in our container, overwriting everything that we have put in that folder in our Dockerfile.
+We can use volumes to make it easier to store the downloads outside the containers ephemeral storage. With **bind mount** we can mount a file or directory from our own machine into the container. Let's start another container with `-v` option, that requires an absolute path. We mount our current folder as `/mydir` in our container, overwriting everything that we have put in that folder in our Podmanfile.
 
 ```console
-$ docker run -v "$(pwd):/mydir" youtube-dl https://imgur.com/JY5tHqr
+$ podman run -v "$(pwd):/mydir" youtube-dl https://imgur.com/JY5tHqr
 ```
 
 So a volume is simply a folder (or a file) that is shared between the host machine and the container. If a file in volume is modified by a program that's running inside the container the changes are also saved from destruction when the container is shut down as the file exists on the host machine. This is the main use for volumes as otherwise all of the files wouldn't be accessible when restarting the container. Volumes also can be used to share files between containers and run programs that are able to load changed files.
@@ -16,9 +16,9 @@ In our youtube-dl we wanted to mount the whole directory since the files are fai
 
 <exercise name="Exercise 1.9: Volumes">
 
-In this exercise we won't create a new Dockerfile.
+In this exercise we won't create a new Podmanfile.
 
-Image `devopsdockeruh/simple-web-service` creates a timestamp every two seconds to `/usr/src/app/text.log` when it's not given a command. Start the
+Image `devopspodmanuh/simple-web-service` creates a timestamp every two seconds to `/usr/src/app/text.log` when it's not given a command. Start the
 container with bind mount so that the logs are created into your filesystem.
 
 Submit the command you used to complete the exercise.
@@ -37,24 +37,24 @@ The address _127.0.0.1_ and hostname _localhost_ are special ones, they refer to
 
 You can map your host machine port to a container port.
 
-Opening a connection from outside world to a docker container happens in two steps:
+Opening a connection from outside world to a podman container happens in two steps:
 
 - Exposing port
 
 - Publishing port
 
-Exposing a container port means telling Docker that the container listens to a certain port. This doesn't do much, except it helps humans with the configuration.
+Exposing a container port means telling Podman that the container listens to a certain port. This doesn't do much, except it helps humans with the configuration.
 
-Publishing a port means that Docker will map host ports to the container ports.
+Publishing a port means that Podman will map host ports to the container ports.
 
-To expose a port, add the line `EXPOSE <port>` in your Dockerfile
+To expose a port, add the line `EXPOSE <port>` in your Podmanfile
 
 To publish a port, run the container with `-p <host-port>:<container-port>`
 
-If you leave out the host port and only specify the container port, docker will automatically choose a free port as the host port:
+If you leave out the host port and only specify the container port, podman will automatically choose a free port as the host port:
 
 ```console
-$ docker run -p 4567 app-in-port
+$ podman run -p 4567 app-in-port
 ```
 
 We could also limit connections to certain protocol only, e.g. udp by adding the protocol at the end: `EXPOSE <port>/udp` and `-p <host-port>:<container-port>/udp`.
@@ -73,9 +73,9 @@ Usually, this isn't risky. But depending on the application, it is something you
 
 <exercise name="Exercise 1.10: Ports open">
 
-In this exercise, we won't create a new Dockerfile.
+In this exercise, we won't create a new Podmanfile.
 
-The image `devopsdockeruh/simple-web-service` will start a web service in port `8080` when given the command "server". From 1.7 you should have an image ready for this. Use -p flag to access the contents with
+The image `devopspodmanuh/simple-web-service` will start a web service in port `8080` when given the command "server". From 1.7 you should have an image ready for this. Use -p flag to access the contents with
 your browser. The output to your browser should be something like:
 `{ message: "You connected to the following path: ...`
 

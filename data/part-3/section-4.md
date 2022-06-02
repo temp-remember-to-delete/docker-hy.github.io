@@ -12,7 +12,7 @@ The bigger your image is the larger the surface area for an attack is. The follo
 
 Let's start by reducing the number of layers. To keep track of the improvements, we will follow the image size after each new Dockerfile.
 
-```dockerfile
+```podmanfile
 FROM ubuntu:18.04
 
 WORKDIR /usr/videos
@@ -34,7 +34,7 @@ ENTRYPOINT ["/usr/local/bin/youtube-dl"]
 
 We will glue all `RUN` commands together to reduce the number of layers we are making in our image.
 
-```dockerfile
+```podmanfile
 FROM ubuntu:18.04
 
 WORKDIR /usr/videos
@@ -54,12 +54,12 @@ ENTRYPOINT ["/usr/local/bin/youtube-dl"]
 
 **207MB**
 
-As a sidenote not directly related to docker: remember that if needed, it is possible to bind packages to versions with `curl=1.2.3` - this will ensure that if the image is built at the later date the image is more likely to work as the versions are exact. On the other hand, the packages will be old and have security issues.
+As a sidenote not directly related to podman: remember that if needed, it is possible to bind packages to versions with `curl=1.2.3` - this will ensure that if the image is built at the later date the image is more likely to work as the versions are exact. On the other hand, the packages will be old and have security issues.
 
-With `docker image history` we can see that our single `RUN` layer adds 76.7 megabytes to the image:
+With `podman image history` we can see that our single `RUN` layer adds 76.7 megabytes to the image:
 
 ```console
-$ docker image history youtube-dl
+$ podman image history youtube-dl
 
   IMAGE          CREATED              CREATED BY                                      SIZE      COMMENT
   f221975422c3   About a minute ago   /bin/sh -c #(nop)  ENTRYPOINT ["/usr/local/b…   0B
@@ -88,7 +88,7 @@ rm -rf /var/lib/apt/lists/*
 Now our slimmed down container should work, but:
 
 ```console
-$ docker container run -v "$(pwd):/usr/videos" youtube-dl https://imgur.com/JY5tHqr
+$ podman container run -v "$(pwd):/usr/videos" youtube-dl https://imgur.com/JY5tHqr
 
   [Imgur] JY5tHqr: Downloading webpage
 
@@ -105,7 +105,7 @@ We can now see that our `youtube-dl` worked previously because of our `curl` dep
 
 Now what we could do is to first `purge --auto-remove` and then add `ca-certificates` back with `apt-get install` or just install `ca-certificates` along with other packages before removing `curl`:
 
-```dockerfile
+```podmanfile
 FROM ubuntu:18.04
 
 WORKDIR /usr/videos
@@ -141,8 +141,8 @@ and this brings us to 36.9 megabytes in our `RUN` layer (from the original 76.7 
 
 <exercise name="Exercise 3.4">
 
-  Return back to our [frontend](https://github.com/docker-hy/material-applications/tree/main/example-frontend) &
-  [backend](https://github.com/docker-hy/material-applications/tree/main/example-backend) Dockerfiles and you should see the some mistakes we now
+  Return back to our [frontend](https://github.com/podman-hy/material-applications/tree/main/example-frontend) &
+  [backend](https://github.com/podman-hy/material-applications/tree/main/example-backend) Dockerfiles and you should see the some mistakes we now
   know to fix.
 
   Document both image sizes at this point, as was done in the material. Optimize the Dockerfiles of both programs,
@@ -156,9 +156,9 @@ and this brings us to 36.9 megabytes in our `RUN` layer (from the original 76.7 
 
 ## Alpine Linux variant ##
 
-Our Ubuntu base image adds the most megabytes to our image (approx 113MB).  Alpine Linux provides a popular alternative base in https://hub.docker.com/_/alpine/ that is around 4 megabytes. It's based on altenative glibc implementation musl and busybox binaries, so not all software run well (or at all) with it, but our python container should run just fine. We'll create the following `Dockerfile.alpine` file:
+Our Ubuntu base image adds the most megabytes to our image (approx 113MB).  Alpine Linux provides a popular alternative base in https://hub.podman.com/_/alpine/ that is around 4 megabytes. It's based on altenative glibc implementation musl and busybox binaries, so not all software run well (or at all) with it, but our python container should run just fine. We'll create the following `Dockerfile.alpine` file:
 
-```dockerfile
+```podmanfile
 FROM alpine:3.13
 
 WORKDIR /usr/videos
@@ -186,19 +186,19 @@ Notes:
 Now when we build this file with `:alpine-3.13` as the tag:
 
 ```console
-$ docker build -t youtube-dl:alpine-3.13 -f Dockerfile.alpine .
+$ podman build -t youtube-dl:alpine-3.13 -f Dockerfile.alpine .
 ```
 
 It seems to run fine:
 
 ```console
-$ docker container run -v "$(pwd):/usr/videos" youtube-dl:alpine-3.13 https://imgur.com/JY5tHqr
+$ podman container run -v "$(pwd):/usr/videos" youtube-dl:alpine-3.13 https://imgur.com/JY5tHqr
 ```
 
 From the history we can see that the our single `RUN` layer size is 39.4MB
 
 ```console
-$ docker image history youtube-dl:alpine-3.13
+$ podman image history youtube-dl:alpine-3.13
 
   IMAGE...
   ...
@@ -214,15 +214,15 @@ Back in part 1 we published the ubuntu version of youtube-dl with tag latest.
 We can publish both variants without overriding the other by publishing them with a describing tag:
 
 ```console
-$ docker image tag youtube-dl:alpine-3.13 <username>/youtube-dl:alpine-3.13
-$ docker image push <username>/youtube-dl:alpine-3.13
+$ podman image tag youtube-dl:alpine-3.13 <username>/youtube-dl:alpine-3.13
+$ podman image push <username>/youtube-dl:alpine-3.13
 ```
 
 OR, if we don't want to upkeep the ubuntu version anymore we can replace our Ubuntu image by pushing this as the latest. Someone might depend on the image being ubuntu though.
 
 ```console
-$ docker image tag youtube-dl:alpine-3.13 <username>/youtube-dl
-$ docker image push <username>/youtube-dl
+$ podman image tag youtube-dl:alpine-3.13 <username>/youtube-dl
+$ podman image push <username>/youtube-dl
 ```
 
 Also remember that unless specified the `:latest` tag will always just refer to the latest image build & pushed - that can basically contain anything.
@@ -247,7 +247,7 @@ Multi-stage builds are useful when you need some tools just for the build but no
 Let's create a website with Jekyll, build the site for production and serve the static files with nginx.
 Start by creating the recipe for Jekyll to build the site.
 
-```dockerfile
+```podmanfile
 FROM ruby:3
 
 WORKDIR /usr/app
@@ -259,7 +259,7 @@ RUN jekyll build
 
 This creates a new Jekyll application and builds it. We could start thinking about optimizations at this point but instead we're going add a new FROM for nginx, this is what resulting image will be. And copy the built static files from the ruby image to our nginx image.
 
-```dockerfile
+```podmanfile
 FROM ruby:3 as build-stage
 ...
 FROM nginx:1.19-alpine
@@ -270,21 +270,21 @@ COPY --from=build-stage /usr/app/_site/ /usr/share/nginx/html
 This copies contents from the first image `/usr/app/_site/` to `/usr/share/nginx/html` Note the naming from ruby to build-stage. We could also use external image as a stage, `--from=python:3.7` for example. Lets build and check the size difference:
 
 ```console
-$ docker build . -t jekyll
-$ docker image ls
+$ podman build . -t jekyll
+$ podman image ls
   REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
   jekyll              latest              5f8839505f37        37 seconds ago      109MB
   ruby                latest              616c3cf5968b        28 hours ago        870MB
 ```
 
-As you can see, even though our jekyll image needed ruby during the build process, its considerably smaller since it only has nginx and the static files. `docker container run -it -p 8080:80 jekyll` also works as expected.
+As you can see, even though our jekyll image needed ruby during the build process, its considerably smaller since it only has nginx and the static files. `podman container run -it -p 8080:80 jekyll` also works as expected.
 
 Often the best choice is to use a FROM **scratch** image as it doesn't have anything we don't explicitly add there, making it most secure option over time.
 
 <exercise name="Exercise 3.6 part 1: Multi-stage frontend">
 
   Multi-stage builds. Lets do a multi-stage build for the
-  [frontend](https://github.com/docker-hy/material-applications/tree/main/example-frontend) project since we've come so far with the application.
+  [frontend](https://github.com/podman-hy/material-applications/tree/main/example-frontend) project since we've come so far with the application.
 
   Even though multi-stage builds are designed mostly for binaries in mind, we can leverage the benefits with our
   frontend project as having original source code with the final assets makes little sense. Build it with the
@@ -297,7 +297,7 @@ Often the best choice is to use a FROM **scratch** image as it doesn't have anyt
 
 <exercise name="Exercise 3.6 part 2: Multi-stage backend">
 
-  Lets do a multi-stage build for the [backend](https://github.com/docker-hy/material-applications/tree/main/example-backend) project since we've come so far with the application.
+  Lets do a multi-stage build for the [backend](https://github.com/podman-hy/material-applications/tree/main/example-backend) project since we've come so far with the application.
 
   The project is in golang and building a binary that runs in a container, while straightforward, isn't exactly trivial. Use resources that you have available (Google, example projects) to build the binary and run it inside a container that uses FROM scratch.
 

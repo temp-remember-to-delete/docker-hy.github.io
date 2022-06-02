@@ -5,7 +5,7 @@ overview: true
 hidden: false
 ---
 
-This part introduces containerization with Docker and relevant concepts such as *image* and *volume*. By the end of this part you are able to:
+This part introduces containerization with Podman and relevant concepts such as *image* and *volume*. By the end of this part you are able to:
 
 * Run containerized applications
 

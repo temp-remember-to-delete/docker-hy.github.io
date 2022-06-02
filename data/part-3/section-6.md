@@ -10,7 +10,7 @@ hidden: false
 
 Enrolling after each part is required for the ECTS credits. Now that you have completed part 3 use the following link to enroll in this course:
 
-- DevOps with Docker: security and optimization, https://www.avoin.helsinki.fi/palvelut/esittely.aspx?s=otm-3c890ee9-7598-4b5c-9922-2c26c0c3235b
+- DevOps with Podman: security and optimization, https://www.avoin.helsinki.fi/palvelut/esittely.aspx?s=otm-3c890ee9-7598-4b5c-9922-2c26c0c3235b
 
 NOTE!
 

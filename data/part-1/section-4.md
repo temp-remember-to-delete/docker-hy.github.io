@@ -7,7 +7,7 @@ hidden: false
 Next, we will start moving towards a more meaningful image. _youtube-dl_ is a program that downloads youtube videos <https://rg3.github.io/youtube-dl/download.html>. Let's add it to an image - but this time, we will change our process. Instead of our current process where we add things to the Dockerfile hope it works, let's try another approach. This time we will open up an interactive session and test stuff before "storing" it in our Dockerfile. By following the youtube-dl install instructions we will see that:
 
 ```console
-$ docker run -it ubuntu:18.04
+$ podman run -it ubuntu:18.04
   root@8c587232a608:/# curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
   bash: curl: command not found
 ```
@@ -66,7 +66,7 @@ $ youtube-dl https://imgur.com/JY5tHqr
 
 So now when we know exactly what we need. Starting FROM ubuntu:18.04, add these to our `Dockerfile`. We should always try to keep the most prone to change rows at the bottom, by adding the instructions to the bottom we can preserve our cached layers - this is handy practise to speed up creating the initial version of a Dockerfile when it has time-consuming operations like downloads. Also added WORKDIR, this will ensure the videos will be downloaded there.
 
-```dockerfile
+```podmanfile
 FROM ubuntu:18.04
 
 WORKDIR /mydir
@@ -87,10 +87,10 @@ CMD ["/usr/local/bin/youtube-dl"]
 When we build this as youtube-dl and run it:
 
 ```console
-$ docker build -t youtube-dl .
+$ podman build -t youtube-dl .
   ...
 
-$ docker run youtube-dl
+$ podman run youtube-dl
 
   Usage: youtube-dl [OPTIONS] URL [URL...]
 
@@ -102,16 +102,16 @@ $ docker run youtube-dl
 So far so good, but now the natural way to use this image would be to give the URL as an argument:
 
 ```console
-$ docker run youtube-dl https://imgur.com/JY5tHqr
+$ podman run youtube-dl https://imgur.com/JY5tHqr
 
-  /usr/local/bin/docker: Error response from daemon: OCI runtime create failed: container_linux.go:296: starting container process caused "exec: \"https://imgur.com/JY5tHqr\": stat https://imgur.com/JY5tHqr: no such file or directory": unknown.
+  /usr/local/bin/podman: Error response from daemon: OCI runtime create failed: container_linux.go:296: starting container process caused "exec: \"https://imgur.com/JY5tHqr\": stat https://imgur.com/JY5tHqr: no such file or directory": unknown.
 
   ERRO[0001] error waiting for container: context canceled
 ```
 
-As we now know, the argument we gave it is replacing the command or `CMD`. We need a way to have something _before_ the command. Luckily we have a way to do this: we can use `ENTRYPOINT` to define the main executable and then docker will combine our run arguments for it.
+As we now know, the argument we gave it is replacing the command or `CMD`. We need a way to have something _before_ the command. Luckily we have a way to do this: we can use `ENTRYPOINT` to define the main executable and then podman will combine our run arguments for it.
 
-```dockerfile
+```podmanfile
 FROM ubuntu:18.04
 
 WORKDIR /mydir
@@ -129,15 +129,15 @@ ENTRYPOINT ["/usr/local/bin/youtube-dl"]
 And now it works like it should:
 
 ```console
-$ docker build -t youtube-dl .
-$ docker run youtube-dl https://imgur.com/JY5tHqr
+$ podman build -t youtube-dl .
+$ podman run youtube-dl https://imgur.com/JY5tHqr
 
   [Imgur] JY5tHqr: Downloading webpage
   [download] Destination: Imgur-JY5tHqr.mp4
   [download] 100% of 190.20KiB in 00:0044MiB/s ETA 00:000
 ```
 
-With _ENTRYPOINT_ `docker run` now executed the combined `/usr/local/bin/youtube-dl https://imgur.com/JY5tHqr` inside the container with that command!
+With _ENTRYPOINT_ `podman run` now executed the combined `/usr/local/bin/youtube-dl https://imgur.com/JY5tHqr` inside the container with that command!
 
 `ENTRYPOINT` vs `CMD` can be confusing - in a properly set up image such as our youtube-dl the command represents an argument list for the entrypoint. By default entrypoint is set as `/bin/sh` and this is passed if no entrypoint is set. This is why giving path to a script file as CMD works: you're giving the file as a parameter to `/bin/sh`.
 
@@ -152,16 +152,16 @@ In the shell form the command is provided as a string without brackets. In the e
 | ENTRYPOINT /bin/ping -c 3 <br> CMD ["localhost"]         | /bin/sh -c '/bin/ping -c 3' localhost            |
 | ENTRYPOINT ["/bin/ping","-c","3"] <br> CMD ["localhost"] | /bin/ping -c 3 localhost                         |
 
-As the command at the end of docker run will be the CMD we want to use ENTRYPOINT to specify what to run, and CMD to specify which command (in our case url) to run.
+As the command at the end of podman run will be the CMD we want to use ENTRYPOINT to specify what to run, and CMD to specify which command (in our case url) to run.
 
 **Most of the time** we can ignore ENTRYPOINT when building our images and only use CMD. For example, ubuntu image defaults the ENTRYPOINT to bash so we do not have to worry about it. And it gives us the convenience of allowing us to overwrite the CMD easily, for example, with bash to go inside the container.
 
 We can test how some other projects do this. Let's try python:
 
 ```console
-$ docker pull python:3.8
+$ podman pull python:3.8
 ...
-$ docker run -it python:3.8
+$ podman run -it python:3.8
   Python 3.8.2 (default, Mar 31 2020, 15:23:55)
   [GCC 8.3.0] on linux
   Type "help", "copyright", "credits" or "license" for more information.
@@ -169,17 +169,17 @@ $ docker run -it python:3.8
   Hello, World!
   >>> exit()
 
-$ docker run -it python:3.8 --version
-  docker: Error response from daemon: OCI runtime create failed: container_linux.go:370: starting container process caused: exec: "--version": executable file not found in $PATH: unknown.
+$ podman run -it python:3.8 --version
+  podman: Error response from daemon: OCI runtime create failed: container_linux.go:370: starting container process caused: exec: "--version": executable file not found in $PATH: unknown.
 
-$ docker run -it python:3.8 bash
+$ podman run -it python:3.8 bash
   root@1b7b99ae2f40:/#
 
 ```
 
 From this experimentation we learned that they have ENTRYPOINT as something other than python, but the CMD is python and we can overwrite it, here with bash. If they had ENTRYPOINT as python we'd be able to run `--version`. We can create our own image for personal use as we did in a previous exercise with a new Dockerfile.
 
-```dockerfile
+```podmanfile
 FROM python:3.8
 ENTRYPOINT ["python3"]
 CMD ["--help"]
@@ -195,10 +195,10 @@ Now we have two problems with the youtube-dl project:
 
 We will fix the major issue first. The minor issue will get our attention in part 3.
 
-By inspecting `docker container ls -a` we can see all our previous runs. When we filter this list with
+By inspecting `podman container ls -a` we can see all our previous runs. When we filter this list with
 
 ```console
-$ docker container ls -a --last 3
+$ podman container ls -a --last 3
 
   CONTAINER ID        IMAGE               COMMAND                   CREATED                  STATUS                          PORTS               NAMES
   be9fdbcafb23        youtube-dl          "/usr/local/bin/yout…"    Less than a second ago   Exited (0) About a minute ago                       determined_elion
@@ -209,16 +209,16 @@ $ docker container ls -a --last 3
 We see that the last container was `be9fdbcafb23` or `determined_elion` for us humans.
 
 ```console
-$ docker diff determined_elion
+$ podman diff determined_elion
 
   C /mydir
   A /mydir/Imgur-JY5tHqr.mp4
 ```
 
-Let's try `docker cp` command to copy the file. We can use quotes if the filename has spaces.
+Let's try `podman cp` command to copy the file. We can use quotes if the filename has spaces.
 
 ```console
-$ docker cp "determined_elion://mydir/Imgur-JY5tHqr.mp4" .
+$ podman cp "determined_elion://mydir/Imgur-JY5tHqr.mp4" .
 ```
 
 And now we have our file locally. Sadly, this is not sufficient to fix our issue. In the next section, we will improve this.
@@ -240,8 +240,8 @@ curl http://$1;
 And change the CMD to ENTRYPOINT with the format `[ "./script.txt" ]`. Now we can run
 
 ```bash
-$ docker build . -t curler-v2
-$ docker run curler-v2 helsinki.fi
+$ podman build . -t curler-v2
+$ podman run curler-v2 helsinki.fi
 
   Searching..
     % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current

@@ -4,11 +4,11 @@ title: 'Using a non-root user'
 hidden: false
 ---
 
-Let's go back to our youtube-dl application. The application could, in theory, escape the container due to a bug in docker/kernel. To mitigate this security issue we will add a non-root user to our container and run our process with that user. Another option would be to map the root user to a high, non-existing user id on the host with https://docs.docker.com/engine/security/userns-remap/, and can be used in case you must use root within the container.
+Let's go back to our youtube-dl application. The application could, in theory, escape the container due to a bug in podman/kernel. To mitigate this security issue we will add a non-root user to our container and run our process with that user. Another option would be to map the root user to a high, non-existing user id on the host with https://docs.podman.com/engine/security/userns-remap/, and can be used in case you must use root within the container.
 
 Our status from the previous part was this:
 
-```dockerfile
+```podmanfile
 FROM ubuntu:18.04
 
 WORKDIR /mydir
@@ -25,13 +25,13 @@ ENTRYPOINT ["/usr/local/bin/youtube-dl"]
 
 We will add an user "appuser" with
 
-```dockerfile
+```podmanfile
 RUN useradd -m appuser
 ```
 
 And then we change user with the directive `USER` - so all commands after this line will be executed as our new user, including the `CMD`.
 
-```dockerfile
+```podmanfile
 FROM ubuntu:18.04
 
 WORKDIR /usr/videos
@@ -52,7 +52,7 @@ ENTRYPOINT ["/usr/local/bin/youtube-dl"]
 I also renamed the WORKDIR to /usr/videos since it makes more sense as the videos will be downloaded there. When we run this image without bind mounting our local directory:
 
 ```console
-$ docker container run youtube-dl https://imgur.com/JY5tHqr
+$ podman container run youtube-dl https://imgur.com/JY5tHqr
 
   [Imgur] JY5tHqr: Downloading webpage
   [download] Destination: Imgur-JY5tHqr.mp4
@@ -66,7 +66,7 @@ We'll see that our `appuser` user can not write to `/usr/videos` - this can be f
 
   <b style="color:firebrick;">This exercise is mandatory</b>
 
-  In the previous parts we created Dockerfiles for both example [frontend](https://github.com/docker-hy/material-applications/tree/main/example-frontend) and [backend](https://github.com/docker-hy/material-applications/tree/main/example-backend).
+  In the previous parts we created Dockerfiles for both example [frontend](https://github.com/podman-hy/material-applications/tree/main/example-frontend) and [backend](https://github.com/podman-hy/material-applications/tree/main/example-backend).
 
   Security issues with the user being a root are serious for the example frontend and backend as the containers for web
   services are supposed to be accessible through the internet.
