@@ -77,19 +77,19 @@ Confirm that Podman installed correctly by opening a terminal and running `podma
 
 ## Installing podman-compose
 
-During the writing of these materials, both macOS and Windows have podman-compose included in their respective Podman packages.
+Linux - [podman-compose GitHub repository](https://github.com/containers/podman-compose). For docker-compose, see the [official Docker documentation](https://docs.docker.com/compose/install/), for download/installation instructions.
 
-Use the official documentation to find download instructions for podman-compose for the platform of your choice:
+Mac - `docker-compose` might be easiest to use. There are the [official releases](https://github.com/docker/compose/releases) as well as [Homebrew Formulae](https://formulae.brew.sh/formula/docker-compose#default). To get it to function follow [this guide](https://gist.github.com/kaaquist/dab64aeb52a815b935b11c86202761a3). If `podman-compose` is truly desired, there is the [MacPorts](https://ports.macports.org/port/podman-compose/) and [pip installation](https://ports.macports.org/port/podman-compose/)
 
-[Install instructions](https://docs.podman.com/compose/install/)
+Window - Best to follow the Linux instructions, whilst using WSL2.
 
 Confirm that podman-compose installed correctly by opening a terminal and running `podman-compose -v` to see the installed podman-compose version.
 
-<text-box name="Podman Group" variant="hint">
+<text-box name="Rootful vs Rootless" variant="hint">
 
-To avoid writing sudos you may consider [adding yourself to podman group](https://docs.podman.com/install/linux/linux-postinstall/)
+There is no need to add oneself to the docker group, since podman can be run rootless, do note that if you wish to use the _well-known ports_ (0 to 1023) you will need to use sudo, this comes with an even bigger caveat, which is that, rootful and rootless are two different uses, so in order to run the same image, it has to be downloaded for root as well.
 
-Keep in mind that if you do so, you can now run containers without sudo and containers give you super user access to the computer.
+Keep in mind that if you use sudo, containers give you super user access to the computer.
 
 </text-box>
 

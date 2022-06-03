@@ -1,7 +1,7 @@
 {
   "@context": "http://schema.org",
   "@type": "Course",
-  "name": "DevOps with Docker 2022",
+  "name": "DevOps with Podman 2022",
   "description": "",
   "provider": {
     "@type": "Organization",
@@ -16,7 +16,7 @@
   "hasCourseInstance": [
     {
       "@type": "CourseInstance",
-      "name": "DevOps with Docker 2022",
+      "name": "DevOps with Podman 2022",
       "courseMode": ["MOOC", "online"],
       "location": {
         "@type": "Place",

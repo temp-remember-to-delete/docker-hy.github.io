@@ -1,4 +1,4 @@
-name: Release DevOps with Docker # Name of the workflow
+name: Release DevOps with Podman # Name of the workflow
 
 # On a push to the branch named master (that is what the repo uses so ignore GitHub's push for main)
 on:
