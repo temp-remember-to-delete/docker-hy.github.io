@@ -6,7 +6,13 @@ hidden: false
 
 Let's set up a deployment pipeline from GitHub to a host machine. We will demonstrate this using your local machine, but the same steps can be used for Raspberry Pi or even a virtual machine in the cloud (such as one provided by [Hetzner](https://www.hetzner.com/cloud)).
 
-We will use GitHub Actions to build an image, push the image to Podman Hub, and then use a project called "Watchtower" automatically pull the image from there.
+For both Docker and Podman, we will use GitHub Actions to build an image, push the image to Docker Hub
+
+For Docker, we will then proceed with a project called "Watchtower" automatically pull the image from there.
+
+For Podman, instead of Watchtower we will use systemd.
+
+## GitHub Actions
 
 Let's work with the repository [https://github.com/podman-hy/podman-hy.github.io](https://github.com/podman-hy/podman-hy.github.io) as it already has a Podmanfile and the GitHub Actions config for our convenience.
 
@@ -15,7 +21,7 @@ First either fork the repository or clone it as your own.
 Let's go over the GitHub Actions instructions. We will be using the official actions offered by [podman](https://github.com/podman), but we could've just installed podman and ran podman build. Most of the following is simply copied from the action [usage instructions](https://github.com/marketplace/actions/build-and-push-podman-images):
 
 ```yaml
-name: Release DevOps with Podman # Name of the workflow
+name: Release DevOps with Docker/Podman # Name of the workflow
 
 # On a push to the branch named master
 on:
@@ -32,7 +38,7 @@ jobs:
     - uses: actions/checkout@v2
 
     # We need to login so we can later push the image without issues.
-    - name: Login to PodmanHub
+    - name: Login to DockerHub
       uses: podman/login-action@v1
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -42,18 +48,20 @@ jobs:
       uses: podman/build-push-action@v2
       with:
         push: true
-        tags: devopspodmanuh/coursepage:latest
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/coursepage:latest
 ```
 
 Before this will work we will need to add 2 Secrets to the repository: `DOCKERHUB_TOKEN` and `DOCKERHUB_USERNAME`. This is done by opening the repository in browser and first pressing *Settings* then *Secrets*. The `DOCKERHUB_TOKEN` can be created in Podman Hub, click your username and then *Account Settings* and *Security*.
+
+## Watchtower
 
 Now create a podman-compose.yml. We will use [watchtower](https://github.com/containrrr/watchtower) to automate the updates.
 
 Watchtower is an open source project that automates the task of updating images. It will poll the source of the image (in this case podmanhub) for changes in the containers that are running. The container that is running will be updated when a new version of the image is pushed to podman hub. Watchtower respects tags e.g. container using ubuntu:18.04 will not be updated unless a new version of ubuntu:18.04 is released.
 
-<text-box name="Security reminder: Podman Hub accessing your computer" variant="hint">
+<text-box name="Security reminder: Docker Hub accessing your computer" variant="hint">
 
-Note that now anyone with access to your Podman Hub also has access to your PC through this. If they push a malicious update to your application watchtower will happily download and start the updated version.
+Note that now anyone with access to your Docker Hub also has access to your PC through this. If they push a malicious update to your application watchtower will happily download and start the updated version.
 
 </text-box>
 
@@ -78,6 +86,10 @@ services:
 Before running podman-compose up here, beware that watchtower will try to update **every** image running in case there is a new version. Check the [documentation](https://containrrr.github.io/watchtower/) if you want to prevent this.
 
 Run this with `podman-compose up` and commit something new into the repository. When you do the `git push`, follow how the github actions pushes a new image to PodmanHub and then watchtower pulls the new image to your machine.
+
+## systemd
+
+WIP: https://fedoramagazine.org/auto-updating-podman-containers-with-systemd/
 
 <exercise name="Exercise 3.1: A deployment pipeline to Heroku">
 
