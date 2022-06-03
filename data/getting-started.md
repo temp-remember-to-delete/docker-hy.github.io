@@ -77,11 +77,11 @@ Confirm that Podman installed correctly by opening a terminal and running `podma
 
 ## Installing podman-compose
 
-Linux - [podman-compose GitHub repository](https://github.com/containers/podman-compose). For docker-compose, see the [official Docker documentation](https://docs.docker.com/compose/install/), for download/installation instructions.
+Linux - [podman-compose GitHub repository](https://github.com/containers/podman-compose). 
 
-Mac - `docker-compose` might be easiest to use. There are the [official releases](https://github.com/docker/compose/releases) as well as [Homebrew Formulae](https://formulae.brew.sh/formula/docker-compose#default). To get it to function follow [this guide](https://gist.github.com/kaaquist/dab64aeb52a815b935b11c86202761a3). If `podman-compose` is truly desired, there is the [MacPorts](https://ports.macports.org/port/podman-compose/) and [pip installation](https://ports.macports.org/port/podman-compose/)
+Mac - there is the [MacPorts](https://ports.macports.org/port/podman-compose/) and [pip installation](https://ports.macports.org/port/podman-compose/)
 
-Window - Best to follow the Linux instructions, whilst using WSL2.
+Windows - Best to follow the Linux instructions, whilst using WSL2.
 
 Confirm that podman-compose installed correctly by opening a terminal and running `podman-compose -v` to see the installed podman-compose version.
 
@@ -92,6 +92,14 @@ There is no need to add oneself to the docker group, since podman can be run roo
 Keep in mind that if you use sudo, containers give you super user access to the computer.
 
 </text-box>
+
+## Installing docker-compose
+
+Linux - For docker-compose, see the [official Docker documentation](https://docs.docker.com/compose/install/), for download/installation instructions.
+
+Mac - `docker-compose` might be easiest to use. There are the [official releases](https://github.com/docker/compose/releases) as well as [Homebrew Formulae](https://formulae.brew.sh/formula/docker-compose#default). To get it to function follow [this guide](https://gist.github.com/kaaquist/dab64aeb52a815b935b11c86202761a3). 
+
+Windows - Best to follow the Linux instructions, whilst using WSL2.
 
 ## Deadline
 
