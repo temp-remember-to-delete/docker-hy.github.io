@@ -95,10 +95,12 @@ networks:
 
 # Scaling
 
+`podman-compose` does not support scaling so `docker-compose` must be used (works with `podman`)
+
 Compose can also scale the service to run multiple instances:
 
 ```console
-$ podman-compose up --scale whoami=3
+$ docker-compose up --scale whoami=3
 
   WARNING: The "whoami" service specifies a port on the host. If multiple containers for this service are created on a single host, the port will clash.
 
@@ -121,22 +123,22 @@ ports:
 Then run the command again:
 
 ```console
-$ podman-compose up --scale whoami=3
+$ docker-compose up --scale whoami=3
   Starting whoami_whoami_1 ... done
   Creating whoami_whoami_2 ... done
   Creating whoami_whoami_3 ... done
 ```
 
-All three instances are now running and listening on random host ports. We can use `podman-compose port` to find out which ports the instances are bound to.
+All three instances are now running and listening on random host ports. We can use `docker-compose port` to find out which ports the instances are bound to.
 
 ```console
-$ podman-compose port --index 1 whoami 8000
+$ docker-compose port --index 1 whoami 8000
   0.0.0.0:32770
 
-$ podman-compose port --index 2 whoami 8000
+$ docker-compose port --index 2 whoami 8000
   0.0.0.0:32769
 
-$ podman-compose port --index 3 whoami 8000
+$ docker-compose port --index 3 whoami 8000
   0.0.0.0:32768
 ```
 
@@ -171,7 +173,7 @@ services:
 When we start this and test
 
 ```console
-$ podman-compose up -d --scale whoami=3
+$ docker-compose up -d --scale whoami=3
 $ curl localhost:80
   <html>
   <head><title>503 Service Temporarily Unavailable</title></head>
@@ -209,7 +211,7 @@ services:
 Now the proxy works:
 
 ```console
-$ podman-compose up -d --scale whoami=3
+$ docker-compose up -d --scale whoami=3
 $ curl whoami.colasloth.com
   I'm f6f85f4848a8
 $ curl whoami.colasloth.com
@@ -243,7 +245,7 @@ world:
 Now let's test:
 
 ```console
-$ podman-compose up -d --scale whoami=3
+$ docker-compose up -d --scale whoami=3
 $ curl hello.colasloth.com
   hello
 
@@ -263,7 +265,7 @@ Test updating the `hello.html` without restarting the container, does it work?
 
 <exercise name="Exercise 2.5">
 
-A project over at [https://github.com/podman-hy/material-applications/tree/main/scaling-exercise](https://github.com/podman-hy/material-applications/tree/main/scaling-exercise) has a hardly working application. Go ahead and clone it for yourself. The project already includes podman-compose.yml so you can start it by running `podman-compose up`.
+A project over at [https://github.com/podman-hy/material-applications/tree/main/scaling-exercise](https://github.com/podman-hy/material-applications/tree/main/scaling-exercise) has a hardly working application. Go ahead and clone it for yourself. The project already includes podman-compose.yml so you can start it by running `docker-compose up`.
 
 Application should be accessible through [http://localhost:3000](http://localhost:3000). However it doesn't work well enough and I've added a load balancer for scaling. Your task is to scale the `compute` containers so that the button in the application turns green.
 
