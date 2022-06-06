@@ -1,4 +1,4 @@
-name: Release DevOps with Podman # Name of the workflow
+name: Push container to Heroku # Name of the workflow
 
 # On a push to the branch named master (that is what the repo uses so ignore GitHub's push for main)
 on:
@@ -14,15 +14,7 @@ jobs:
     # Checkout to the repository (the actions don't actually need this since they use the repository context anyway)
     - uses: actions/checkout@v3
 
-    # We need to login so we can later push the image without issues.
-    - name: Login to DockerHub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-    # Builds devopsdockeruh/docker-hy.github.io
-    - name: Build and push
-      uses: docker/build-push-action@v2
-      with:
-        push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/coursepage:latest
+    - name: Login to Heroku Container Registry
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      run: heroku container:login
