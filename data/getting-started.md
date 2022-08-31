@@ -26,7 +26,7 @@ Completing part 1 gives you 1 credit. Completing parts 1 and 2 is worth 2 credit
 Part 1
 
 Can explain what images and containers are and how they're related.
-Can build images with Podman for existing projects and run them.
+Can build images with Podman or Docker for existing projects and run them.
 
 Part 2
 
