@@ -103,7 +103,7 @@ Windows - Best to follow the Linux instructions, whilst using WSL2.
 
 ## Deadline
 
-The sign up for ECTS credits and the course ends 22.5.2022! After that course is locked and submissions can no longer be made or credits earned. As the certificate is received through submissions, you have to submit everything before the course ends. More details under completion and after each part.
+The deadline was in May of 2022 and there may not be a new course.
 
 ## General guidance
 
