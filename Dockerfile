@@ -4,6 +4,8 @@ WORKDIR /usr/src/app
 
 COPY package* /
 
+RUN npm install
+
 RUN npm ci
 
 COPY . .
