@@ -1,7 +1,7 @@
 {
   "name": "ohjelmoinnin-mooc",
   "engines": {
-    "node": "14.x"
+    "node": "16.x"
   },
   "dependencies": {
     "@apollo/react-hooks": "^4.0.0",
@@ -125,6 +125,38 @@
   "husky": {
     "hooks": {
       "pre-commit": "./bin/check-code-style.sh"
+    }
+  },
+  "overrides": {
+    "code-states-visualizer": {
+      "react": "$react",
+      "react-dom": "$react-dom"
+    },
+    "moocfi-quizzes": {
+      "graphql-request": "$graphql-request",
+      "react-content-loader": "$react-content-loader",
+      "react-toastify": "$react-toastify"
+    },
+    "react-icons": {
+      "react": "$react",
+      "react-dom": "$react-dom"
+    },
+    "pdf-slideshow": {
+      "react": "$react",
+      "react-dom": "$react-dom",
+      "react-redux": "$react-redux",
+      "styled-components": "$styled-components"
+    },
+    "react-motion": {
+      "react": "$react",
+      "react-dom": "$react-dom"
+    },
+    "likert-react": {
+      "react": "$react"
+    },
+    "react-icon-base": {
+      "react": "$react",
+      "react-dom": "$react-dom"      
     }
   }
 }
