@@ -9,7 +9,7 @@ on:
 # Job called build runs-on ubuntu-latest
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
     # Checkout to the repository (the actions don't actually need this since they use the repository context anyway)
     - uses: actions/checkout@v3
