@@ -7,6 +7,8 @@ banner: true
 sidebar_priority: 7000
 ---
 
+Testing to see if anything happens
+
 This course is an introductory course to Podman and podman-compose. The course will also look into what different parts web services consist of, such as reverse proxies, databases, etc. Podman can not be installed on faculty computers, so students will need to use their computers to follow the examples outlined in this course material and to complete the exercises.
 
 ### Prerequisites
